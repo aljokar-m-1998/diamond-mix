@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIAMOND TOOL // ULTIMATE EDITION</title>
+    <style>
+        /* * ==========================================================================
+         * DIAMOND TOOL - CORE CSS STYLESHEET
+         * VERSION: 9.9.9 (ULTIMATE)
+         * THEME: CRYSTAL CYAN / DEEP BLACK
+         * ==========================================================================
+         */
+
+        :root {
+            --main-color: #00f7ff;       /* Cyan Diamond */
+            --secondary-color: #006b6e;  /* Dark Cyan */
+            --bg-color: #030507;         /* Deep Black */
+            --panel-bg: rgba(5, 15, 20, 0.85);
+            --glass-border: 1px solid rgba(0, 247, 255, 0.3);
+            --text-glow: 0 0 5px var(--main-color);
+            --box-glow: 0 0 15px rgba(0, 247, 255, 0.2);
+            --danger: #ff0055;
+            --warning: #ffcc00;
+            --success: #00ff66;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary-color) var(--bg-color);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--main-color);
+            font-family: var(--font-mono);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* CRT Scanline Effect */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* UTILITIES */
+        .glow-text { text-shadow: var(--text-glow); }
+        .hidden { display: none !important; }
+        .blink { animation: blinker 1s linear infinite; }
+        
+        @keyframes blinker { 50% { opacity: 0; } }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+        /* * ==========================================================================
+         * BOOT SCREEN
+         * ==========================================================================
+         */
+        #boot-sequence {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 14px;
+        }
+
+        .diamond-logo {
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--main-color);
+            transform: rotate(45deg);
+            box-shadow: 0 0 30px var(--main-color);
+            margin-bottom: 30px;
+            position: relative;
+            animation: pulse-diamond 2s infinite;
+        }
+        
+        .diamond-inner {
+            position: absolute;
+            top: 15%; left: 15%; width: 70%; height: 70%;
+            border: 1px solid var(--main-color);
+            background: rgba(0, 247, 255, 0.1);
+        }
+
+        @keyframes pulse-diamond {
+            0% { box-shadow: 0 0 20px var(--main-color); transform: rotate(45deg) scale(1); }
+            50% { box-shadow: 0 0 50px var(--main-color); transform: rotate(45deg) scale(1.1); }
+            100% { box-shadow: 0 0 20px var(--main-color); transform: rotate(45deg) scale(1); }
+        }
+
+        #boot-log {
+            width: 60%;
+            height: 200px;
+            overflow: hidden;
+            color: #fff;
+            text-align: left;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+
+        /* * ==========================================================================
+         * MAIN LAYOUT
+         * ==========================================================================
+         */
+        #app-container {
+            display: flex;
+            height: 100%;
+            opacity: 0; /* Hidden initially */
+            transition: opacity 1s;
+        }
+
+        /* SIDEBAR */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: rgba(0, 10, 15, 0.95);
+            border-right: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 0 20px 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            border-bottom: 1px solid var(--secondary-color);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .brand span { color: var(--main-color); }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            color: #888;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 247, 255, 0.1), transparent);
+            color: var(--main-color);
+            border-left: 3px solid var(--main-color);
+            padding-left: 35px;
+            text-shadow: 0 0 8px var(--main-color);
+        }
+
+        .nav-item i { margin-right: 10px; width: 20px; text-align: center; }
+
+        .system-status {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid var(--secondary-color);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        /* MAIN CONTENT */
+        #main-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #051015 0%, #000000 100%);
+        }
+
+        /* HEADER */
+        header {
+            height: 50px;
+            border-bottom: var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .top-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+        }
+        
+        .stat-item b { color: #fff; margin-right: 5px; }
+
+        /* MODULE CONTAINERS */
+        .module {
+            position: absolute;
+            top: 50px; left: 0; right: 0; bottom: 0;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .module.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* * ==========================================================================
+         * DASHBOARD MODULE
+         * ==========================================================================
+         */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 20px;
+            height: 100%;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: var(--glass-border);
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .card-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #113;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card.large { grid-column: span 2; grid-row: span 2; }
+        
+        /* Canvas Styling */
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .log-feed {
+            font-size: 11px;
+            line-height: 1.6;
+            height: 90%;
+            overflow-y: hidden;
+            color: #eee;
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #112; }
+        .log-time { color: var(--secondary-color); margin-right: 5px; }
+
+        /* * ==========================================================================
+         * TERMINAL MODULE
+         * ==========================================================================
+         */
+        #terminal-ui {
+            background: rgba(0,0,0,0.8);
+            border: var(--glass-border);
+            height: 100%;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #term-output {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .term-line { margin-bottom: 2px; }
+        .term-success { color: var(--success); }
+        .term-error { color: var(--danger); }
+        .term-info { color: var(--main-color); }
+        .term-prompt { color: #fff; font-weight: bold; }
+
+        #term-input-line {
+            display: flex;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+
+        #term-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            flex: 1;
+            margin-left: 10px;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        /* * ==========================================================================
+         * NETWORK MAP & ATTACK
+         * ==========================================================================
+         */
+        #map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #020205;
+        }
+
+        .target-node {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--danger);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .target-node:hover { transform: scale(2); background: #fff; }
+
+        .connection-line {
+            position: absolute;
+            height: 1px;
+            background: rgba(0, 247, 255, 0.2);
+            transform-origin: 0 0;
+            pointer-events: none;
+        }
+
+        /* * ==========================================================================
+         * TOOLS GRID (DECRYPTION / MINER)
+         * ==========================================================================
+         */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-box {
+            background: rgba(0, 20, 30, 0.6);
+            border: 1px solid #333;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .tool-box:hover {
+            border-color: var(--main-color);
+            background: rgba(0, 247, 255, 0.1);
+        }
+
+        .tool-icon { font-size: 40px; margin-bottom: 10px; color: var(--main-color); }
+        .tool-name { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #fff; }
+        .tool-desc { font-size: 12px; color: #888; }
+
+        /* BUTTONS */
+        .diamond-btn {
+            background: transparent;
+            border: 1px solid var(--main-color);
+            color: var(--main-color);
+            padding: 8px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .diamond-btn:hover {
+            background: var(--main-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--main-color);
+        }
+
+        /* PROGRESS BARS */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #111;
+            margin-top: 10px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--main-color);
+            box-shadow: 0 0 10px var(--main-color);
+            transition: width 0.1s;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. BOOT SEQUENCE OVERLAY -->
+    <div id="boot-sequence">
+        <div class="diamond-logo">
+            <div class="diamond-inner"></div>
+        </div>
+        <h2 class="glow-text">DIAMOND TOOL <span style="font-size:10px; color:#666;">v9.0 ULTIMATE</span></h2>
+        <div id="boot-log">
+            <!-- JS will populate this -->
+        </div>
+    </div>
+
+    <!-- 2. MAIN APP CONTAINER -->
+    <div id="app-container">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <nav id="sidebar">
+            <div class="brand">
+                <span>◆</span> DIAMOND
+            </div>
+            
+            <div class="nav-item active" onclick="DiamondOS.switchTab('dashboard')">
+                <i>☷</i> DASHBOARD
+            </div>
+            <div class="nav-item" onclick="DiamondOS.switchTab('terminal')">
+                <i>>_</i> PRISM TERMINAL
+            </div>
+            <div class="nav-item" onclick="DiamondOS.switchTab('network')">
+                <i>🌐</i> NET-HUNTER
+            </div>
+            <div class="nav-item" onclick="DiamondOS.switchTab('decrypt')">
+                <i>🔓</i> CRYPTO-BREAKER
+            </div>
+            <div class="nav-item" onclick="DiamondOS.switchTab('payloads')">
+                <i>💣</i> PAYLOAD GEN
+            </div>
+
+            <div class="system-status">
+                <div class="status-row"><span>CPU</span> <span id="cpu-val">12%</span></div>
+                <div class="status-row"><span>RAM</span> <span id="ram-val">4.2GB</span></div>
+                <div class="status-row"><span>NET</span> <span id="net-val">UP</span></div>
+                <div class="status-row"><span>VPN</span> <span style="color:var(--success)">SECURE</span></div>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <div id="main-content">
+            
+            <header>
+                <div class="top-stats">
+                    <span class="stat-item"><b>IP:</b> <span id="user-ip">192.168.X.X</span> (MASKED)</span>
+                    <span class="stat-item"><b>SESSION:</b> <span id="session-id">#A99-Z1</span></span>
+                </div>
+                <div class="clock" id="clock">00:00:00</div>
+            </header>
+
+            <!-- MODULE 1: DASHBOARD -->
+            <div id="dashboard" class="module active">
+                <div class="grid-container">
+                    <!-- Global Attack Map (Visual) -->
+                    <div class="card large">
+                        <div class="card-title">
+                            <span>GLOBAL THREAT MAP</span>
+                            <span class="blink">LIVE</span>
+                        </div>
+                        <canvas id="world-map"></canvas>
+                    </div>
+
+                    <!-- System Resource Graph -->
+                    <div class="card">
+                        <div class="card-title">RESOURCE USAGE</div>
+                        <canvas id="resource-graph"></canvas>
+                    </div>
+
+                    <!-- Activity Log -->
+                    <div class="card">
+                        <div class="card-title">EVENT LOGS</div>
+                        <div class="log-feed" id="main-logs">
+                            <!-- Logs generated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Target List -->
+                    <div class="card">
+                        <div class="card-title">NEARBY TARGETS (WIFI/BT)</div>
+                        <ul style="list-style:none; font-size:12px; color:#aaa;" id="target-list">
+                            <!-- Generated by JS -->
+                        </ul>
+                    </div>
+
+                     <!-- Quick Actions -->
+                     <div class="card">
+                        <div class="card-title">QUICK PROTOCOLS</div>
+                        <button class="diamond-btn" onclick="DiamondOS.notify('Cleaning Tracks...', 'success')">CLEAR LOGS</button>
+                        <button class="diamond-btn" onclick="DiamondOS.notify('IP Rotated', 'info')">ROTATE PROXY</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 2: TERMINAL -->
+            <div id="terminal" class="module">
+                <div id="terminal-ui">
+                    <div id="term-output">
+                        <div class="term-line term-info">Welcome to Diamond Shell v4.0</div>
+                        <div class="term-line">Type 'help' for available commands.</div>
+                        <br>
+                    </div>
+                    <div id="term-input-line">
+                        <span class="term-prompt">root@diamond:~#</span>
+                        <input type="text" id="term-input" autocomplete="off" autofocus>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 3: NETWORK VISUALIZER -->
+            <div id="network" class="module">
+                <div class="card" style="height: 100%;">
+                    <div class="card-title">
+                        <span>NETWORK TOPOLOGY SCANNER</span>
+                        <button class="diamond-btn" style="padding: 2px 10px; margin:0;" onclick="NetworkScanner.scan()">RE-SCAN</button>
+                    </div>
+                    <div id="map-container">
+                        <!-- Nodes added by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 4: DECRYPTION TOOLS -->
+            <div id="decrypt" class="module">
+                <h3 class="glow-text" style="margin-bottom: 20px;">CRYPTOGRAPHY SUITE</h3>
+                
+                <div class="tools-grid">
+                    <div class="tool-box" onclick="DecryptionModule.startBruteForce()">
+                        <div class="tool-icon">#</div>
+                        <div class="tool-name">HASH CRACKER</div>
+                        <div class="tool-desc">MD5 / SHA-256 Brute Force</div>
+                        <div class="progress-container"><div class="progress-bar" id="bf-progress"></div></div>
+                        <div id="bf-status" style="font-size:10px; margin-top:5px; color:#888;">IDLE</div>
+                    </div>
+
+                    <div class="tool-box">
+                        <div class="tool-icon">❄</div>
+                        <div class="tool-name">DEEP FREEZE</div>
+                        <div class="tool-desc">Suspend Target Processes</div>
+                    </div>
+
+                    <div class="tool-box">
+                        <div class="tool-icon">🗝</div>
+                        <div class="tool-name">KEY INJECTOR</div>
+                        <div class="tool-desc">SQL Injection Automator</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px; height: 300px;">
+                    <div class="card-title">OUTPUT CONSOLE</div>
+                    <div id="decrypt-console" style="font-family:monospace; font-size:12px; color:#0f0; overflow-y:auto; height:100%;">
+                        Ready for operation...
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 5: PAYLOADS -->
+            <div id="payloads" class="module">
+                <h3 class="glow-text" style="margin-bottom: 20px;">PAYLOAD GENERATOR</h3>
+                <div style="display:flex; gap:20px;">
+                    <div class="card" style="flex:1">
+                        <div class="card-title">CONFIGURATION</div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; font-size:12px; margin-bottom:5px;">Target OS</label>
+                            <select style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px;">
+                                <option>Windows 11/10</option>
+                                <option>Linux (Debian/Redhat)</option>
+                                <option>Android 14+</option>
+                                <option>iOS (Jailbroken)</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="display:block; font-size:12px; margin-bottom:5px;">Exploit Type</label>
+                            <select style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px;">
+                                <option>Reverse TCP Shell</option>
+                                <option>Ransomware Simulation</option>
+                                <option>Keylogger Hook</option>
+                                <option>Botnet Zombie</option>
+                            </select>
+                        </div>
+                        <button class="diamond-btn" style="width:100%" onclick="DiamondOS.generatePayload()">BUILD .EXE</button>
+                    </div>
+                    <div class="card" style="flex:1">
+                        <div class="card-title">HEX PREVIEW</div>
+                        <div id="hex-view" style="font-family:monospace; font-size:12px; color:#555; word-break:break-all;">
+                            [WAITING FOR BUILD...]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * ==========================================================================
+         * DIAMOND CORE JAVASCRIPT
+         * Logic includes: Boot, Navigation, Canvas Animation, Simulation Data
+         * ==========================================================================
+         */
+
+        const Utils = {
+            random: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+            randomHex: () => Math.floor(Math.random()*16777215).toString(16),
+            getTimestamp: () => new Date().toLocaleTimeString('en-US', {hour12: false}),
+            wait: (ms) => new Promise(resolve => setTimeout(resolve, ms))
+        };
+
+        // --- 1. BOOT SEQUENCE ---
+        async function runBoot() {
+            const log = document.getElementById('boot-log');
+            const lines = [
+                "Initializing Diamond Kernel...",
+                "Loading Modules: [NET] [CRYPTO] [SHELL] [UI]...",
+                "Bypassing Security Checksums... OK",
+                "Connecting to Shadow Network...",
+                "Establishing Encrypted Tunnel (AES-256)...",
+                "Masking IP Address...",
+                "Mounting Virtual Filesystem...",
+                "DIAMOND TOOL READY."
+            ];
+
+            for (let line of lines) {
+                const p = document.createElement('div');
+                p.textContent = `> ${line}`;
+                log.appendChild(p);
+                log.scrollTop = log.scrollHeight;
+                await Utils.wait(Utils.random(100, 400));
+            }
+
+            await Utils.wait(500);
+            document.getElementById('boot-sequence').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('boot-sequence').style.display = 'none';
+                document.getElementById('app-container').style.opacity = 1;
+                DiamondOS.init();
+            }, 1000);
+        }
+
+        // --- 2. OS CONTROLLER ---
+        const DiamondOS = {
+            init: function() {
+                this.updateClock();
+                this.startResourceMonitor();
+                this.startLogGenerator();
+                this.populateTargets();
+                
+                // Init Sub-Modules
+                WorldMap.init();
+                NetworkScanner.init();
+                Terminal.init();
+            },
+
+            switchTab: function(tabId) {
+                // Update Nav
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+
+                // Update Modules
+                document.querySelectorAll('.module').forEach(el => el.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+
+                // Trigger specific inits
+                if(tabId === 'network') NetworkScanner.scan();
+            },
+
+            updateClock: function() {
+                setInterval(() => {
+                    document.getElementById('clock').innerText = Utils.getTimestamp();
+                }, 1000);
+            },
+
+            startResourceMonitor: function() {
+                setInterval(() => {
+                    document.getElementById('cpu-val').innerText = Utils.random(5, 45) + '%';
+                    document.getElementById('ram-val').innerText = (Math.random() * (8 - 2) + 2).toFixed(1) + 'GB';
+                }, 2000);
+                
+                // Graph Animation
+                const canvas = document.getElementById('resource-graph');
+                const ctx = canvas.getContext('2d');
+                let data = new Array(50).fill(0);
+                
+                function drawGraph() {
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height - 40;
+
+                    // Push new data
+                    data.shift();
+                    data.push(Math.random());
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Grid
+                    ctx.strokeStyle = "rgba(0, 247, 255, 0.1)";
+                    ctx.beginPath();
+                    for(let i=0; i<canvas.width; i+=20) { ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); }
+                    ctx.stroke();
+
+                    // Line
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height - (data[0] * canvas.height));
+                    for(let i=1; i<data.length; i++) {
+                        const x = (i / data.length) * canvas.width;
+                        const y = canvas.height - (data[i] * canvas.height);
+                        ctx.lineTo(x, y);
+                    }
+                    ctx.strokeStyle = "#00f7ff";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Fill
+                    ctx.lineTo(canvas.width, canvas.height);
+                    ctx.lineTo(0, canvas.height);
+                    ctx.fillStyle = "rgba(0, 247, 255, 0.2)";
+                    ctx.fill();
+
+                    requestAnimationFrame(drawGraph);
+                }
+                drawGraph();
+            },
+
+            startLogGenerator: function() {
+                const actions = ["Port Scan", "Handshake", "Packet Sniff", "Brute Force", "SQL Injection", "XSS Test"];
+                const targets = ["192.168.1.105", "server-alpha", "gateway-01", "admin-panel", "db-main"];
+                const feed = document.getElementById('main-logs');
+
+                setInterval(() => {
+                    const action = actions[Math.floor(Math.random() * actions.length)];
+                    const target = targets[Math.floor(Math.random() * targets.length)];
+                    const div = document.createElement('div');
+                    div.className = 'log-entry';
+                    div.innerHTML = `<span class="log-time">[${Utils.getTimestamp()}]</span> <span style="color:#fff">${action}</span> > ${target}`;
+                    feed.prepend(div);
+                    if(feed.children.length > 20) feed.lastChild.remove();
+                }, 1500);
+            },
+
+            populateTargets: function() {
+                const list = document.getElementById('target-list');
+                const ssids = ["Corp_Guest", "Admin_WiFi", "Linksys_5G", "iPhone_13", "Starbucks_Free"];
+                ssids.forEach(ssid => {
+                    const li = document.createElement('li');
+                    li.style.marginBottom = "5px";
+                    li.innerHTML = `<span style="color:var(--danger)">●</span> ${ssid} <span style="float:right">${Utils.random(-80, -30)}dBm</span>`;
+                    list.appendChild(li);
+                });
+            },
+            
+            notify: function(msg, type) {
+                // A simple console log simulation for notifications
+                const term = document.getElementById('term-output');
+                if(term) {
+                    const div = document.createElement('div');
+                    div.className = 'term-line';
+                    div.style.color = type === 'success' ? 'var(--success)' : 'var(--main-color)';
+                    div.innerHTML = `[NOTIFY] ${msg}`;
+                    term.appendChild(div);
+                    term.scrollTop = term.scrollHeight;
+                }
+            },
+
+            generatePayload: function() {
+                const hexView = document.getElementById('hex-view');
+                hexView.innerHTML = "";
+                let count = 0;
+                const interval = setInterval(() => {
+                    hexView.innerHTML += Utils.randomHex() + " ";
+                    count++;
+                    if(count > 100) {
+                        clearInterval(interval);
+                        hexView.innerHTML += "<br><br>[SUCCESS] Payload generated: payload.exe";
+                        DiamondOS.notify("Payload Generation Complete", "success");
+                    }
+                }, 10);
+            }
+        };
+
+        // --- 3. WORLD MAP VISUALIZER ---
+        const WorldMap = {
+            init: function() {
+                const canvas = document.getElementById('world-map');
+                const ctx = canvas.getContext('2d');
+                let attacks = [];
+
+                function resize() {
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height - 40;
+                }
+                window.addEventListener('resize', resize);
+                resize();
+
+                function draw() {
+                    ctx.fillStyle = "rgba(5, 15, 20, 0.4)";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw abstract map (points)
+                    ctx.fillStyle = "#113";
+                    for(let i=0; i<50; i++) {
+                        ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+                    }
+
+                    // Add new attack
+                    if(Math.random() > 0.95) {
+                        attacks.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            tx: Math.random() * canvas.width,
+                            ty: Math.random() * canvas.height,
+                            life: 1.0
+                        });
+                    }
+
+                    // Draw attacks
+                    for(let i=attacks.length-1; i>=0; i--) {
+                        let a = attacks[i];
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 247, 255, ${a.life})`;
+                        ctx.lineWidth = 2;
+                        ctx.moveTo(a.x, a.y);
+                        // Parabolic curve
+                        ctx.quadraticCurveTo(canvas.width/2, canvas.height/2, a.tx, a.ty);
+                        ctx.stroke();
+
+                        // Target dot
+                        ctx.fillStyle = `rgba(255, 0, 85, ${a.life})`;
+                        ctx.beginPath();
+                        ctx.arc(a.tx, a.ty, 3, 0, Math.PI*2);
+                        ctx.fill();
+
+                        a.life -= 0.02;
+                        if(a.life <= 0) attacks.splice(i, 1);
+                    }
+
+                    requestAnimationFrame(draw);
+                }
+                draw();
+            }
+        };
+
+        // --- 4. TERMINAL LOGIC ---
+        const Terminal = {
+            init: function() {
+                const input = document.getElementById('term-input');
+                input.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter') {
+                        this.exec(input.value);
+                        input.value = '';
+                    }
+                });
+            },
+            print: function(text, type='') {
+                const out = document.getElementById('term-output');
+                const div = document.createElement('div');
+                div.className = `term-line ${type}`;
+                div.textContent = text;
+                out.appendChild(div);
+                out.scrollTop = out.scrollHeight;
+            },
+            exec: function(cmd) {
+                this.print(`root@diamond:~# ${cmd}`);
+                const command = cmd.toLowerCase().split(' ')[0];
+                
+                switch(command) {
+                    case 'help':
+                        this.print("Available: scan, nmap, crack, clear, exit, diamond", "term-info");
+                        break;
+                    case 'clear':
+                        document.getElementById('term-output').innerHTML = '';
+                        break;
+                    case 'scan':
+                        this.print("Scanning local network...", "term-info");
+                        setTimeout(() => this.print("Found: 192.168.1.55 (Open Ports: 80, 22)", "term-success"), 1000);
+                        break;
+                    case 'diamond':
+                        this.print("YOU ARE USING THE ULTIMATE EDITION.", "term-success");
+                        break;
+                    default:
+                        this.print(`Command not found: ${command}`, "term-error");
+                }
+            }
+        };
+
+        // --- 5. NETWORK SCANNER (NODES) ---
+        const NetworkScanner = {
+            init: function() {}, // Placeholder
+            scan: function() {
+                const container = document.getElementById('map-container');
+                container.innerHTML = ''; // Clear
+                
+                // Create central node
+                const center = document.createElement('div');
+                center.className = 'target-node';
+                center.style.left = '50%';
+                center.style.top = '50%';
+                center.style.background = '#00f7ff';
+                center.title = "LOCALHOST";
+                container.appendChild(center);
+
+                // Create random targets
+                for(let i=0; i<10; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'target-node';
+                    const x = Utils.random(10, 90);
+                    const y = Utils.random(10, 90);
+                    node.style.left = x + '%';
+                    node.style.top = y + '%';
+                    node.title = `IP: 192.168.1.${Utils.random(20, 255)}`;
+                    
+                    // Connection line (simple DOM impl for demo, Canvas is better usually)
+                    // ... Skipping complex line logic for brevity in this specific block, visuals are implied.
+                    
+                    node.onclick = () => {
+                        DiamondOS.notify(`Target Selected: ${node.title}`, "info");
+                        node.style.background = "#fff";
+                    };
+
+                    container.appendChild(node);
+                    
+                    // Simple animation entry
+                    node.style.transform = "scale(0)";
+                    setTimeout(() => node.style.transform = "scale(1)", i * 100);
+                }
+            }
+        };
+
+        // --- 6. DECRYPTION MODULE ---
+        const DecryptionModule = {
+            startBruteForce: function() {
+                const bar = document.getElementById('bf-progress');
+                const status = document.getElementById('bf-status');
+                const consoleDiv = document.getElementById('decrypt-console');
+                let width = 0;
+                
+                status.innerText = "ATTACKING HASH: 5f4dcc3b5aa765...";
+                status.style.color = "var(--warning)";
+                status.classList.add('blink');
+
+                const interval = setInterval(() => {
+                    width += 0.5;
+                    bar.style.width = width + '%';
+                    
+                    // Random attempt log
+                    const attempt = Math.random().toString(36).substring(7);
+                    const log = document.createElement('div');
+                    log.innerText = `Testing: ${attempt} ... FAIL`;
+                    consoleDiv.prepend(log);
+
+                    if(width >= 100) {
+                        clearInterval(interval);
+                        status.innerText = "PASSWORD FOUND: 'admin123'";
+                        status.style.color = "var(--success)";
+                        status.classList.remove('blink');
+                        
+                        const successLog = document.createElement('div');
+                        successLog.innerText = `[SUCCESS] MATCH FOUND: admin123`;
+                        successLog.style.color = "var(--success)";
+                        successLog.style.fontWeight = "bold";
+                        consoleDiv.prepend(successLog);
+                    }
+                }, 50);
+            }
+        };
+
+        // Start Boot
+        window.onload = runBoot;
+
+    </script>
+</body>
+</html>
